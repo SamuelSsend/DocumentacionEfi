@@ -1,0 +1,121 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: tenant-b
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-tenant-b
+  namespace: tenant-b
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql-tenant-b
+  template:
+    metadata:
+      labels:
+        app: mysql-tenant-b
+    spec:
+      containers:
+      - name: mysql
+        image: mysql/mysql-server:5.7
+        env:
+        - name: MYSQL_DATABASE
+          value: "tenant_b_db"
+        - name: MYSQL_ALLOW_EMPTY_PASSWORD
+          value: "yes"
+        ports:
+        - containerPort: 3306
+        volumeMounts:
+        - name: mysql-storage
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: mysql-storage
+        persistentVolumeClaim:
+          claimName: mysql-pvc-tenant-b
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+  namespace: tenant-b
+spec:
+  selector:
+    app: mysql-tenant-b
+  ports:
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pvc-tenant-b
+  namespace: tenant-b
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: tenant-b
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: efipos
+  namespace: tenant-b
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: efipos
+  template:
+    metadata:
+      labels:
+        app: efipos
+    spec:
+      initContainers:
+      - name: wait-for-mysql
+        image: busybox
+        command: ['sh', '-c', 'until nc -z mysql 3306; do echo waiting for mysql; sleep 2; done;']
+      containers:
+      - name: efipos
+        image: amarval073/efipos-imagen
+        ports:
+        - containerPort: 80
+        env:
+        - name: DB_CONNECTION
+          value: "mysql"
+        - name: DB_HOST
+          value: "mysql"
+        - name: DB_PORT
+          value: "3306"
+        - name: DB_DATABASE
+          value: "tenant_b"
+        - name: DB_USERNAME
+          value: "tenant_b_user"
+        - name: DB_PASSWORD
+          value: ""
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: efipos-tenant-b
+  namespace: tenant-b
+spec:
+  selector:
+    app: efipos
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80

@@ -1,0 +1,24 @@
+version: '3'
+services:
+  efipos:
+    environment:
+      - APP_ENV=production
+      - DB_DATABASE=EFIPOS
+      - DB_USERNAME=EFIPOS
+      - DB_PASSWORD=Gerty.f45e
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./:/var/www/html
+    restart: unless-stopped
+    networks:
+      - web_localNetwork
+
+networks:
+  web_localNetwork:
+    external: true
+
+volumes:
+  efipos:
+    driver: local

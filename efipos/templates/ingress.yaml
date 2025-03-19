@@ -1,0 +1,19 @@
+{{- if .Values.efipos.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: efipos-ingress-tenant-a
+  namespace: tenant-a
+spec:
+  rules:
+  - host: {{ .Values.efipos.ingress.host }}
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: efipos-tenant-a
+            port:
+              number: 80
+{{- end }}

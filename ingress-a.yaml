@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: efipos-ingress-tenant-a
+  namespace: tenant-a
+spec:
+  rules:
+  - host: tenant-a.efipos.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: efipos-svc
+            port:
+              number: 80

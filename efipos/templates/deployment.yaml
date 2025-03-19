@@ -1,0 +1,120 @@
+{{- range .Values.tenants }}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .name }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-{{ .name }}
+  namespace: {{ .name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql-{{ .name }}
+  template:
+    metadata:
+      labels:
+        app: mysql-{{ .name }}
+    spec:
+      containers:
+      - name: mysql
+        image: mysql/mysql-server:5.7
+        env:
+        - name: MYSQL_DATABASE
+          value: "{{ .mysql.database }}"
+        - name: MYSQL_ALLOW_EMPTY_PASSWORD
+          value: "yes"
+        ports:
+        - containerPort: 3306
+        volumeMounts:
+        - name: mysql-storage
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: mysql-storage
+        persistentVolumeClaim:
+          claimName: mysql-pvc-{{ .name }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pvc-{{ .name }}
+  namespace: {{ .name }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .mysql.pvc.storage }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: efipos-{{ .name }}
+  namespace: {{ .name }}
+spec:
+  replicas: {{ .efipos.replicas }}
+  selector:
+    matchLabels:
+      app: efipos-{{ .name }}
+  template:
+    metadata:
+      labels:
+        app: efipos-{{ .name }}
+    spec:
+      containers:
+      - name: efipos
+        image: amarval073/efipos-imagen
+        ports:
+        - containerPort: 80
+        env:
+        - name: DB_CONNECTION
+          value: "mysql"
+        - name: DB_HOST
+          value: "mysql-{{ .name }}"
+        - name: DB_PORT
+          value: "3306"
+        - name: DB_DATABASE
+          value: "{{ .efipos.db.database }}"
+        - name: DB_USERNAME
+          value: "{{ .efipos.db.username }}"
+        - name: DB_PASSWORD
+          value: "{{ .efipos.db.password }}"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: efipos-{{ .name }}
+  namespace: {{ .name }}
+spec:
+  selector:
+    app: efipos-{{ .name }}
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+---
+{{- if .efipos.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: efipos-ingress-{{ .name }}
+  namespace: {{ .name }}
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+    - host: {{ .efipos.ingress.host }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: efipos-{{ .name }}
+                port:
+                  number: 80
+{{- end }}
+{{- end }}

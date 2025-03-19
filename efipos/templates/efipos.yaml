@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: efipos
+  namespace: tenant-a
+spec:
+  replicas: {{ .Values.efipos.replicas }}
+  selector:
+    matchLabels:
+      app: efipos
+  template:
+    metadata:
+      labels:
+        app: efipos
+    spec:
+      initContainers:
+      - name: wait-for-mysql
+        image: busybox
+        command: ['sh', '-c', 'until nc -z mysql 3306; do echo waiting for mysql; sleep 2; done;']
+      containers:
+      - name: efipos
+        image: {{ .Values.efipos.image }}
+        ports:
+        - containerPort: 80
+        env:
+        - name: DB_CONNECTION
+          value: "mysql"
+        - name: DB_HOST
+          value: {{ .Values.efipos.db.host }}
+        - name: DB_PORT
+          value: "{{ .Values.efipos.db.port }}"
+        - name: DB_DATABASE
+          value: {{ .Values.efipos.db.database }}
+        - name: DB_USERNAME
+          value: {{ .Values.efipos.db.username }}
+        - name: DB_PASSWORD
+          value: {{ .Values.efipos.db.password }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: efipos-tenant-a
+  namespace: tenant-a
+spec:
+  selector:
+    app: efipos
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80

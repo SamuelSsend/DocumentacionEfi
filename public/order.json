@@ -1,0 +1,81 @@
+{
+    "servicio": {
+        "nombre": "efipos",
+        "orden": 1030,
+        "tipo": "23",
+        "codigopedido": 1030
+    },
+    "fecha": "2023-09-25T10:35:32.267",
+    "moneda": "EUR",
+    "total": "10.00",
+    "productos": [
+        {
+            "idproducto": 1000032,
+            "nombre": "Producto Prueba",
+            "cantidad": 1,
+            "preciounitario": "5.00",
+            "subproductos": [
+                {
+                    "idmenuseccion": 0,
+                    "idproducto": "27",
+                    "nombre": "Ketchup",
+                    "cantidad": 1,
+                    "preciounitario": 1
+                },
+                {
+                    "idmenuseccion": 0,
+                    "idproducto": "27",
+                    "nombre": "Mayonesa",
+                    "cantidad": 1,
+                    "preciounitario": 0.5
+                },
+                {
+                    "idmenuseccion": 0,
+                    "idproducto": "27",
+                    "nombre": "Queso",
+                    "cantidad": 1,
+                    "preciounitario": 0.5
+                }
+            ]
+        },
+        {
+            "idproducto": 1000032,
+            "nombre": "Producto Prueba",
+            "cantidad": 1,
+            "preciounitario": "5.00",
+            "subproductos": [
+                {
+                    "idmenuseccion": 0,
+                    "idproducto": "27",
+                    "nombre": "Ketchup",
+                    "cantidad": 1,
+                    "preciounitario": 1
+                },
+                {
+                    "idmenuseccion": 0,
+                    "idproducto": "27",
+                    "nombre": "Queso",
+                    "cantidad": 1,
+                    "preciounitario": 0.5
+                },
+                {
+                    "idmenuseccion": 0,
+                    "idproducto": "27",
+                    "nombre": "Tomate",
+                    "cantidad": 1,
+                    "preciounitario": 0.4
+                }
+            ]
+        }
+    ],
+    "direccion": "Avd. Andalucia, 2 4\u00baC",
+    "cliente": {
+        "nombre": "Juan",
+        "nif": ""
+    },
+    "comentariocliente": "Tel\u00e9fono:677673740",
+    "pagos": {
+        "importe": "10.00"
+    },
+    "estado": "ACEPTED"
+}

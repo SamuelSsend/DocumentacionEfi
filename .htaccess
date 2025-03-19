@@ -1,0 +1,18 @@
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews -Indexes
+    </IfModule>
+
+    # RewriteEngine On
+
+    # # Redirige todas las solicitudes al directorio public, excepto los recursos existentes
+    # RewriteCond %{REQUEST_FILENAME} !-d
+    # RewriteCond %{REQUEST_FILENAME} !-f
+    # RewriteRule ^ index.php [L]
+    RewriteEngine on
+    RewriteCond %{HTTP_HOST} ^thebeastburgerlalinea.efiposdelivery.com.es$ [NC,OR]
+    RewriteCond %{HTTP_HOST} ^www.thebeastburgerlalinea.efiposdelivery.com.es$
+    RewriteCond %{REQUEST_URI} !public/
+    RewriteRule (.*) /public/$1 [L]
+
+</IfModule>

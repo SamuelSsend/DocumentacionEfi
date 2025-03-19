@@ -1,0 +1,18 @@
+repositories:
+  - name: stable
+    url: https://charts.helm.sh/stable
+
+releases:
+  - name: tenant-a
+    namespace: tenant-a
+    chart: ./efipos
+    values:
+      - values-tenant-a.yaml
+
+  - name: tenant-b
+    namespace: tenant-b
+    chart: ./efipos
+    values:
+      - values-tenant-b.yaml
+
+  # Añade más releases según sea necesario

@@ -1,0 +1,50 @@
+version: '3'
+services:
+  efipos:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '${APP_PORT:-80}:80'
+    volumes:
+      - ./:/var/www/html
+      - /var/www/html/storage/framework
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: unless-stopped
+  mysql:
+    image: 'mysql/mysql-server:5.7'
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASSWORD}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    environment:
+      MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
+      MYSQL_ROOT_HOST: "%"
+      MYSQL_DATABASE: '${DB_DATABASE}'
+      MYSQL_PASSWORD: '${DB_PASSWORD}'
+    ports:
+      - '${DB_PORT:-3306}:3306'
+    volumes:
+      - 'mysql:/var/lib/mysql'
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    links:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: '${DB_PORT:-3306}'
+      PMA_ARBITRARY: 1
+    restart: unless-stopped
+    ports:
+      - "20888:80"
+    depends_on:
+        mysql:
+          condition: service_healthy
+volumes:
+  mysql:
+    driver: local
+  efipos:
+    driver: local

@@ -1,0 +1,96 @@
+tenants:
+  - name: tenant-a
+    mysql:
+      database: tenant_a_db
+      username: tenant_a_user
+      password: ""
+      pvc:
+        storage: 1Gi
+    efipos:
+      replicas: 1
+      db:
+        host: mysql
+        port: 3306
+        database: tenant_a
+        username: tenant_a_user
+        password: ""
+      ingress:
+        enabled: true
+        host: tenant-a.efipos.local
+  - name: tenant-b
+    mysql:
+      database: tenant_b_db
+      username: tenant_b_user
+      password: ""
+      pvc:
+        storage: 1Gi
+    efipos:
+      replicas: 1
+      db:
+        host: mysql
+        port: 3306
+        database: tenant_b
+        username: tenant_b_user
+        password: ""
+      ingress:
+        enabled: true
+        host: tenant-b.efipos.local
+  # Añade más tenants según sea necesario
+
+# Valores globales o por defecto que podrían ser utilizados por todos los tenants
+replicaCount: 1
+
+image:
+  repository: nginx
+  pullPolicy: IfNotPresent
+  tag: ""
+
+imagePullSecrets: []
+
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  automount: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext: {}
+
+securityContext: {}
+
+service:
+  type: ClusterIP
+  port: 80
+
+resources: {}
+
+livenessProbe:
+  httpGet:
+    path: /
+    port: http
+
+readinessProbe:
+  httpGet:
+    path: /
+    port: http
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+
+volumes: []
+
+volumeMounts: []
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
